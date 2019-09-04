@@ -1,4 +1,4 @@
-# Sighline studies 
+# Sightline studies 
 The project tries to find different approaches to the problem of finding invisible points within a street art installation.
 
 ## Sightline using Blender 2.8

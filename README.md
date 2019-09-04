@@ -1,5 +1,5 @@
 # Sighline studies 
-The project tries to find different approaches to the problem of finding invisible dots within a street art installation, with the ultimate aim of reducing the amount of material on stage.
+The project tries to find different approaches to the problem of finding invisible points within a street art installation.
 
 ## Sightline using Blender 2.8
 

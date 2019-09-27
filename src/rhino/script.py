@@ -14,6 +14,29 @@ def GetObjectsFromLayer(layername):
         output.append(obj)
     return output
 
+def roundPoint(pt):
+    tol = 5
+    p3D = Rhino.Geometry.Point3d(round(pt.X,tol),round(pt.Y,tol), round(pt.Z,tol))
+    return p3D
+
+def faceBoundingBox(object):
+    output = []
+    faces = object.Geometry.Faces
+    count = len(faces)
+    tol = 4
+    for i in range(count):
+        
+        bbx = faces.GetFaceBoundingBox(i)
+        outCSV = "{},{},{},{},{},{}".format(round(bbx.Min.X,tol), round(bbx.Min.Y,tol), round(bbx.Min.Z,tol), round(bbx.Max.X,tol), round(bbx.Max.Y,tol), round(bbx.Max.Z,tol))
+        output.append(outCSV)
+    return output
+
+
+def getObjectOnLayer(layername):
+
+    rhobjs = scriptcontext.doc.Objects.FindByLayer(layername)
+    return rhobjs
+
 
 
 def BBXtoCSV(obj, objIndex):
@@ -23,7 +46,7 @@ def BBXtoCSV(obj, objIndex):
         point = obj.BoundingBox
     else:
         point = obj.Geometry.GetBoundingBox(True)
-    return "{},{},{},{},{},{},{}\n".format(objIndex, round(point.Min.X,tol), round(point.Min.Y,tol), round(point.Min.Z,tol), round(point.Max.X,tol), round(point.Max.Y,tol), round(point.Max.Z,tol))
+    return "{},{},{},{},{},{},{},{}\n".format(objIndex, round(point.Min.X,tol), round(point.Min.Y,tol), round(point.Min.Z,tol), round(point.Max.X,tol), round(point.Max.Y,tol), round(point.Max.Z,tol), obj.Id)
 
 def pointToCSV(point):
     '''Create a point representing a vertex'''
@@ -73,10 +96,11 @@ if __name__=="__main__":
     context.extend(detection)
     vertex = []
     #Extract all vertex from meshes
+    
+
     def getTargetPoints(o):
+        global vertex
         vertex.extend([v for v in o.Geometry.Vertices])
-    
-    
     
     ghpythonlib.parallel.run(getTargetPoints,detection, True)
     POV = GetObjectsFromLayer('POV')
@@ -97,13 +121,18 @@ if __name__=="__main__":
     writePoints(targets_, "targets_")
     writePoints(meshes, "context_")
     
-#    def setRay(d):
-#        point, d, i =gc.IsoVistRay(sample, 1, d.Geometry)
-#        result.append(point)
-#
-#    ghpythonlib.parallel.run(setRay,detection, True)
 
-#    points = [item for r in result for item in r]
+    points = [faceBoundingBox(o) for o in context]
+    
+    with open('mesh_faces.csv', 'w') as f:
+        count = len(context)
+        for i in range(count):
+            for bb in points[i]:
+                f.write("{},{}\n".format( bb, context[i].Id ))
+    
+
+    
+
 
 
 

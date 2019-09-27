@@ -130,10 +130,3 @@ if __name__=="__main__":
             for bb in points[i]:
                 f.write("{},{}\n".format( bb, context[i].Id ))
     
-
-    
-
-
-
-
-    

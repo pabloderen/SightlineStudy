@@ -27,7 +27,7 @@ def faceBoundingBox(object):
     for i in range(count):
         
         bbx = faces.GetFaceBoundingBox(i)
-        outCSV = "{},{},{},{},{},{}".format(round(bbx.Min.X,tol), round(bbx.Min.Y,tol), round(bbx.Min.Z,tol), round(bbx.Max.X,tol), round(bbx.Max.Y,tol), round(bbx.Max.Z,tol))
+        outCSV = "{},{},{},{},{},{}".format( round(bbx.Max.X,tol), round(bbx.Max.Y,tol), round(bbx.Max.Z,tol),round(bbx.Min.X,tol), round(bbx.Min.Y,tol), round(bbx.Min.Z,tol))
         output.append(outCSV)
     return output
 
@@ -46,7 +46,7 @@ def BBXtoCSV(obj, objIndex):
         point = obj.BoundingBox
     else:
         point = obj.Geometry.GetBoundingBox(True)
-    return "{},{},{},{},{},{},{},{}\n".format(objIndex, round(point.Min.X,tol), round(point.Min.Y,tol), round(point.Min.Z,tol), round(point.Max.X,tol), round(point.Max.Y,tol), round(point.Max.Z,tol), obj.Id)
+    return "{},{},{},{},{},{},{},{}\n".format(objIndex, round(point.Max.X,tol), round(point.Max.Y,tol), round(point.Max.Z,tol), round(point.Min.X,tol), round(point.Min.Y,tol), round(point.Min.Z,tol), obj.Id)
 
 def pointToCSV(point):
     '''Create a point representing a vertex'''
@@ -93,7 +93,7 @@ if __name__=="__main__":
     tol = scriptcontext.doc.ModelAbsoluteTolerance
     detection = GetObjectsFromLayer('Detection')
     context = GetObjectsFromLayer('Context')
-    context.extend(detection)
+#    context.extend(detection)
     vertex = []
     #Extract all vertex from meshes
     
@@ -115,6 +115,7 @@ if __name__=="__main__":
 
     povs = [pointToCSV(p) for p in pointsOfView]
     targets_ = [pointToCSV(p) for p in vertex]
+
     meshes = [BBXtoCSV(s, idx) for idx, s in enumerate(context)]
     
     writePoints(povs, "pov_")

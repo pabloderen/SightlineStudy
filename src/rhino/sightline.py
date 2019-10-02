@@ -11,6 +11,7 @@ import time
 import multiprocessing as mp
 from multiprocessing import Pool
 from functools import partial
+from numpy.lib import recfunctions as rfn
 
 import os
 os.environ["OMP_NUM_THREADS"] = "10"
@@ -55,16 +56,29 @@ def bb_intersection_over_union(boxA, boxB):
     
     return interArea
 
+@numba.jit(forceobj=True, parallel=True)
+def FilterByBBX(Faces, line):
+    maxX = max(line[3],line[0])
+    maxY = max(line[4],line[1])
+    maxZ = max(line[5],line[2])
+    minX = min(line[3],line[0])
+    minY = min(line[4],line[1])
+    minZ = min(line[5],line[2])
+    aa = np.where((Faces[:,0] > minX) & ( Faces[:,1] > minY) & (Faces[:,2] > minZ) & (Faces[:,3] < maxX) & (Faces[:,4] < maxY) & (Faces[:,5] < maxZ)   )
+    return Faces[aa]
 
 def checkFaces(Faces, line):
     #Face v line iterator
+    Faces = FilterByBBX(Faces, line )
     for f in Faces:
-        a = np.array(f[:-1],  dtype=np.float32)
+        a = np.array(f,  dtype=np.float32)
         b = np.array(line,  dtype=np.float32)
         if intersection(a,b):
             return True
     return False
 
+def filter(a, b):
+    return a
 
 @numba.jit(['float32(float32,float32,float32)'], forceobj=True, parallel=True)
 def tt(a,b,c):
@@ -77,6 +91,7 @@ def length(a,b,c):
 @numba.jit(forceobj=True, parallel=True)
 def normalC(ray):
     return [ray[3]-ray[0], ray[4]-ray[1],ray[5]-ray[2]]
+
 
 @numba.jit(forceobj=True, parallel=True)
 def intersection(aabb, ray):
@@ -95,7 +110,7 @@ def intersection(aabb, ray):
 
         # if tmax < 0, ray (line) is intersecting AABB, but whole AABB is behing us
     if (tmax < 0):
-        return False
+        return 0
 
         # if tmin > tmax, ray doesn't intersect AABB
     tmin = max(min(t1, t2), min(t3, t4), min(t5, t6))
@@ -181,12 +196,15 @@ if __name__ is  '__main__':
     # Filtering only the mesh faces that belong to a mesh from previews test
     filter = mesh_faces["id"].isin(meshes_[resultA]['id'])
     mesh_faces_filter = mesh_faces[filter]
-    print('{} faces to test'.format(len(mesh_faces)))
-    print('{} possible intersections to test'.format(len(mesh_faces) * len(lines)))
-    
+    print('{} faces to test'.format(len(mesh_faces_filter)))
+    print('{} possible intersections to test'.format(len(mesh_faces_filter) * len(lines)))
+
     pool = Pool(processes=10)
-    fun = partial(checkFaces,mesh_faces_filter.values)
-    resultsB = pool.map(fun,lines.values)
+
+  
+    funB = partial(checkFaces,mesh_faces_filter.drop('id', axis=1).values)
+    resultsB = pool.map(funB,lines.values)
+
 
     lines['hits']= resultsB
     positive = len(lines[lines['hits'] == False])

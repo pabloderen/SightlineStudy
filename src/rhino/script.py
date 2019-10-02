@@ -5,6 +5,8 @@ import ghpythonlib.components as gc
 import rhinoscriptsyntax as rs
 import csv
 import Rhino.Geometry as rg
+import os
+
 
 def GetObjectsFromLayer(layername):
 
@@ -87,6 +89,10 @@ def writePoints(vertex, name):
 
 
 if __name__=="__main__":
+    files = ["mesh_faces.csv","pov_.csv","targets_.csv","context_.csv"]
+    for f in files:
+        if os.path.exists(f):
+            os.remove(f)
 
 
     #Get elements to detect, TODO replace with other method for points

@@ -68,17 +68,17 @@ def FilterByBBX(Faces, line):
     return Faces[aa]
 
 def checkFaces(Faces, line):
-    #Face v line iterator
-    Faces = FilterByBBX(Faces, line )
-    for f in Faces:
+    #filter by boinding box intersection
+    Faces = FilterByBBX(Faces, line)
+    # sort by proximity to point to test occulsion
+    f =np.delete(Faces, np.s_[3:6], axis=1) 
+    idx = np.argsort(e_dist(f, np.array([line[0],line[1],line[2]])))
+    for f in Faces[idx]:
         a = np.array(f,  dtype=np.float32)
         b = np.array(line,  dtype=np.float32)
         if intersection(a,b):
             return True
     return False
-
-def filter(a, b):
-    return a
 
 @numba.jit(['float32(float32,float32,float32)'], forceobj=True, parallel=True)
 def tt(a,b,c):
@@ -124,6 +124,33 @@ def intersection(aabb, ray):
     if (t * t) > length(normal[0],normal[1],normal[2]):
         return 0
     return 1
+
+
+@numba.jit(forceobj=True, parallel=True)
+def e_dist(a, b):
+
+    """Distance calculation for 1D, 2D and 3D points using einsum
+    : a, b   - list, tuple, array in 1,2 or 3D form
+    : metric - euclidean ('e','eu'...), sqeuclidean ('s','sq'...),
+    :-----------------------------------------------------------------------
+    """
+    a = np.asarray(a)
+    b = np.atleast_2d(b)
+    a_dim = a.ndim
+    b_dim = b.ndim
+    if a_dim == 1:
+        a = a.reshape(1, 1, a.shape[0])
+    if a_dim >= 2:
+        a = a.reshape(np.prod(a.shape[:-1]), 1, a.shape[-1])
+    if b_dim > 2:
+        b = b.reshape(np.prod(b.shape[:-1]), b.shape[-1])
+    diff = a - b
+    dist_arr = np.einsum('ijk,ijk->ij', diff, diff)
+    
+    dist_arr = np.sqrt(dist_arr)
+    dist_arr = np.squeeze(dist_arr)
+    return dist_arr
+
 
 
 # Filter lines with positive intersections
@@ -201,8 +228,9 @@ if __name__ is  '__main__':
 
     pool = Pool(processes=10)
 
-  
+    
     funB = partial(checkFaces,mesh_faces_filter.drop('id', axis=1).values)
+    #resultsB = [funB(l) for l in lines.values]
     resultsB = pool.map(funB,lines.values)
 
 

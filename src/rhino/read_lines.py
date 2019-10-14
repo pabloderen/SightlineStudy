@@ -4,7 +4,7 @@ import Rhino.Geometry as rg
 import rhinoscriptsyntax as rs
 import csv
 
-with open('negative.csv') as csvfile:
+with open('positive.csv') as csvfile:
     readCSV = csv.reader(csvfile, delimiter=',')
     next(readCSV)
     for row in readCSV:

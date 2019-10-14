@@ -18,18 +18,18 @@ def GetObjectsFromLayer(layername):
 
 def roundPoint(pt):
     tol = 5
-    p3D = Rhino.Geometry.Point3d(round(pt.X,tol),round(pt.Y,tol), round(pt.Z,tol))
+    p3D = Rhino.Geometry.Point3d(pt.X, pt.Y, pt.Z)
     return p3D
 
 def faceBoundingBox(object):
     output = []
     faces = object.Geometry.Faces
     count = len(faces)
-    tol = 4
+    tol = 5
     for i in range(count):
         
         bbx = faces.GetFaceBoundingBox(i)
-        outCSV = "{},{},{},{},{},{}".format( round(bbx.Max.X,tol), round(bbx.Max.Y,tol), round(bbx.Max.Z,tol),round(bbx.Min.X,tol), round(bbx.Min.Y,tol), round(bbx.Min.Z,tol))
+        outCSV = "{},{},{},{},{},{}".format( bbx.Max.X, bbx.Max.Y, bbx.Max.Z, bbx.Min.X,bbx.Min.Y, bbx.Min.Z)
         output.append(outCSV)
     return output
 
@@ -43,16 +43,16 @@ def getObjectOnLayer(layername):
 
 def BBXtoCSV(obj, objIndex):
     '''Create a point representing a vertex'''
-    tol = 4
+    tol = 5
     if isinstance(obj, rg.Line):
         point = obj.BoundingBox
     else:
         point = obj.Geometry.GetBoundingBox(True)
-    return "{},{},{},{},{},{},{},{}\n".format(objIndex, round(point.Max.X,tol), round(point.Max.Y,tol), round(point.Max.Z,tol), round(point.Min.X,tol), round(point.Min.Y,tol), round(point.Min.Z,tol), obj.Id)
+    return "{},{},{},{},{},{},{},{}\n".format(objIndex, point.Max.X, point.Max.Y, point.Max.Z, point.Min.X, point.Min.Y, point.Min.Z, obj.Id)
 
 def pointToCSV(point):
     '''Create a point representing a vertex'''
-    tol = 4
+    tol = 5
     return "{},{},{}\n".format(point.X, point.Y, point.Z)
 
 
@@ -75,7 +75,7 @@ sample = []
     
 def simplifyPoints(p):
    tol = str(scriptcontext.doc.ModelAbsoluteTolerance).count('0')
-   point =rg.Point3d(round(p.X, tol),round(p.Y, tol), round(p.Z, tol))
+   point =rg.Point3d(p.X,p.Y, p.Z)
    return point
 
 def writePoints(vertex, name):

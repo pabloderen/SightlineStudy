@@ -70,10 +70,8 @@ def split(aabb):
 
 # @numba.jit(forceobj=True, parallel=True)
 def XClipLine(d,vecMax, vecMin,  v0,  v1, f_low, f_high):
-
-	# // Find the point of intersection in this dimension only as a fraction of the total vector http://youtu.be/USjbg5QXk3g?t=3m12s
-	#
-
+	# Method for AABB vs line took from https://github.com/BSVino/MathForGameDevelopers/tree/line-box-intersection
+	# // Find the point of intersection in this dimension only as a fraction of the total vector
 	
 	f_dim_low = (vecMin[d] - v0[d])/(v1[d] - v0[d] + 0.0000001)
 	f_dim_high = (vecMax[d] - v0[d])/(v1[d] - v0[d]+ 0.0000001)
@@ -82,7 +80,7 @@ def XClipLine(d,vecMax, vecMin,  v0,  v1, f_low, f_high):
 	if (f_dim_high < f_dim_low):
 		f_dim_high, f_dim_low = f_dim_low, f_dim_high
 
-	# // If this dimension's high is less than the low we got then we definitely missed. http://youtu.be/USjbg5QXk3g?t=7m16s
+	# // If this dimension's high is less than the low we got then we definitely missed.
 	if (f_dim_high < f_low):
 		return False
 
@@ -90,7 +88,7 @@ def XClipLine(d,vecMax, vecMin,  v0,  v1, f_low, f_high):
 	if (f_dim_low > f_high):
 		return False
 
-	# // Add the clip from this dimension to the previous results http://youtu.be/USjbg5QXk3g?t=5m32s
+	# // Add the clip from this dimension to the previous results
 	f_low = max(f_dim_low, f_low)
 	f_high = min(f_dim_high, f_high)
 
@@ -100,13 +98,9 @@ def XClipLine(d,vecMax, vecMin,  v0,  v1, f_low, f_high):
 	return f_low , f_high
 
 
-
-
-
-# // Find the intersection of a line from v0 to v1 and an axis-aligned bounding box http://www.youtube.com/watch?v=USjbg5QXk3g
 #@numba.jit(forceobj=True, parallel=True)
 def LineAABBIntersection(aabbBox,line):
-
+	# Method for AABB vs line took from https://github.com/BSVino/MathForGameDevelopers/tree/line-box-intersection
 	f_low = 0
 	f_high = 1
 	v0, v1 = (line[0], line[1], line[2]), (line[3], line[4], line[5])
@@ -201,9 +195,6 @@ if __name__ is  '__main__':
 
 	pool = Pool(processes=12)
 	funB = partial(checklines,meshes_.values, mesh_faces.values)
-	
-	# funB = partial(checkFaces,mesh_faces_filter.drop('id', axis=1).values)
-	#resultsB = [checklines(meshes_.values, mesh_faces.values, l) for l in lines.values]
 	resultsB = pool.map(funB,lines.values)
 
 

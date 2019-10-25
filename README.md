@@ -1,11 +1,15 @@
 # Sightline studies 
 The project tries to find different approaches to the problem of finding invisible points within a street art installation.
 
+Content
+1. **[Sightline using Blender 2.8](https://github.com/pabloderen/SightlineStudy#sightline-using-blender-28)**
+2. **[Collision Detection using Pandas and Numpy](https://github.com/pabloderen/SightlineStudy#collision-detection-using-pandas-and-numpy)**
+
 ## Sightline using Blender 2.8
 
 ![blender sample](https://github.com/pabloderen/Blender_SighlineStudy/raw/master/img/01_Blender_Script.png)
 
-For this approach, we use the scene method ray_cast to check if a point is visible from a specific point in space.
+For this [approach](https://github.com/pabloderen/SightlineStudy/blob/master/src/blender/sightline.py), we use the scene method ray_cast to check if a point is visible from a specific point in space.
 Access objects vertex
 
 ```python
@@ -57,7 +61,7 @@ def rayFromScene( origin, dst):
 
 # Collision Detection using Pandas and Numpy
 
-The next step was to investigate the use of python libraries Pandas and Numpy to perform the calculation thru an agnostic approach not depending on 3D software.
+The next step was to investigate the use of python libraries Pandas and Numpy to perform the calculation thru an agnostic [approach](https://github.com/pabloderen/SightlineStudy/blob/master/src/rhino/sightline.py) not depending on 3D software.
 For this we imported information from the 3D model formated in 4 different datasets:
 
 * Points of Views (x,y,z)
@@ -140,7 +144,7 @@ for b in meshes:
 
 ```
 
-## line vs Mesh voxel
+## Line vs Mesh voxel
 
 If the mesh is collisioning with the line, we split the mesh bbx in 4 and try each section for colissions.
 
@@ -178,7 +182,7 @@ def checklines(meshes, faces, line):
 
 ```
 
-## line vs face
+## Line vs Faces
 
 Finally, when the result it's true we test the faces which their center point it's located inside the mesh
 

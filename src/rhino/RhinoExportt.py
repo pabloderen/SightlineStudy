@@ -11,10 +11,8 @@ import os
 def GetObjectsFromLayer(layername):
 
     rhobjs = scriptcontext.doc.Objects.FindByLayer(layername)
-    output = []
-    for obj in rhobjs:
-        output.append(obj)
-    return output
+
+    return rhobjs
 
 def roundPoint(pt):
     tol = 5
